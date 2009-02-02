@@ -1,0 +1,7 @@
+History.txt
+Manifest.txt
+README.txt
+Rakefile
+yodlee.gemspec
+lib/yodlee.rb
+test/test_yodlee.rb
