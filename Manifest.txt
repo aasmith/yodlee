@@ -2,6 +2,12 @@ History.txt
 Manifest.txt
 README.txt
 Rakefile
-yodlee.gemspec
 lib/yodlee.rb
+lib/yodlee/account.rb
+lib/yodlee/connection.rb
+lib/yodlee/credentials.rb
+lib/yodlee/exceptions.rb
+lib/yodlee/monkeypatches.rb
+lib/yodlee/version.rb
 test/test_yodlee.rb
+yodlee.gemspec
