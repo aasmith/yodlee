@@ -3,6 +3,8 @@ require 'mechanize'
 require 'nokogiri'
 require 'enumerator'
 
+require 'yodlee/version'
+
 class String
   def underscore
     gsub(/::/, '/').
@@ -14,8 +16,6 @@ class String
 end
 
 module Yodlee
-  VERSION = "0.0.1"
-
   class Credentials
     QUESTIONS = <<-EOS.split(/\n\s*\n?/).map{|e|e.strip}
       In what city was your high school? (full name of city only)
