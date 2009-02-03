@@ -125,8 +125,18 @@ module Yodlee
     end
 
     def check_expectation(page)
-      raise ExpectationNotFound, "Didn't find expectation" unless page.body.include?(@credentials.expectation)
-      page
+      d = Nokogiri::HTML.parse(page.body)
+      node = d.at("dl > dt[contains('Secret Phrase')] + dd .caption")
+
+      if node
+        if @credentials.expectation == node.previous.text.strip
+          return page
+        else
+          raise ExpectationMismatch, "Expectation found, but was incorrect"
+        end
+      else
+        raise ExpectationNotFound, "Didn't find expectation"
+      end
     end
 
     def provide_password(page)

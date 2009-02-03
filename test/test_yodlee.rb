@@ -68,16 +68,26 @@ class TestYodlee < Test::Unit::TestCase
 
   def test_check_expectation
     page = flexmock("page")
-    page.should_receive(:body).once.and_return("xxx bar yyy")
+    page.should_receive(:body).once.and_return("
+      <dl>
+      <dt>Secret Phrase:</dt>
+      <dd> bar
+        <div class=\"caption\">Ensure etc etc blah blah</div>
+      </dd></dl>")
 
     assert_equal page, @conn.check_expectation(page)
   end
 
   def test_check_expectation_fails
     page = flexmock("page")
-    page.should_receive(:body).once.and_return("xxx no expectation on this page yyy")
+    page.should_receive(:body).once.and_return("
+      <dl>
+      <dt>Secret Phrase:</dt>
+      <dd> wrong expectation!
+        <div class=\"caption\">Ensure etc etc trick it by putting it here bar blah blah</div>
+      </dd></dl>")
 
-    assert_raises Yodlee::ExpectationNotFound do
+    assert_raises Yodlee::ExpectationMismatch do
       @conn.check_expectation(page)
     end
   end
