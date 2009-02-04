@@ -54,7 +54,10 @@ module Yodlee
       account_info = regular_acct ? regular_account_info(doc) : investment_account_info(doc)
       account_info[:next_update]  = next_upd
       account_info[:last_updated] = last_upd
-      account_info[:transactions] = page.form_with(:name => 'rep').submit.body
+
+      csv_page = page.form_with(:name => 'rep').submit
+      account_info[:transactions] = csv_page.response['content-type'] =~ /csv/ ? csv_page.body : []
+
       account_info
     end
 
