@@ -8,7 +8,7 @@ module Yodlee
       @accounts = nil
 
       @agent = WWW::Mechanize.new
-      @agent.user_agent_alias = 'Windows IE 7'
+      @agent.user_agent = 'Mozilla/5.0 (Windows; U; Windows NT 6.0; en-US; rv:1.9.0.5) Gecko/2008120122 Firefox/3.0.5'
 
       @uris = {}
     end
