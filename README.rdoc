@@ -1,34 +1,34 @@
 = yodlee
 
- * http://github.com/aasmith/yodlee
+http://github.com/aasmith/yodlee
 
 == DESCRIPTION:
 
- Fetches accounts and their transaction details from the Yodlee 
- MoneyCenter (https://moneycenter.yodlee.com).
+Fetches accounts and their transaction details from the Yodlee 
+MoneyCenter (https://moneycenter.yodlee.com).
 
 == NOTES:
 
- * The strings returned by Yodlee::Account#{last_updated,next_update} 
-   can be parsed with Chronic (http://chronic.rubyforge.org), if a 
-   timestamp is needed.
+* The strings returned by Yodlee::Account#{last_updated,next_update} 
+  can be parsed with Chronic (http://chronic.rubyforge.org), if a 
+  timestamp is needed.
 
- * Raises exceptions when exceptional things happen. These are scenarios
-   where the connection probably needs to be re-instantiated with the 
-   correct details after prompting the user or some external source for 
-   more complete login or account details.
+* Raises exceptions when exceptional things happen. These are scenarios
+  where the connection probably needs to be re-instantiated with the 
+  correct details after prompting the user or some external source for 
+  more complete login or account details.
 
 == BUGS / TODO:
 
- * Does not handle lists containing bill pay accounts
+* Does not handle lists containing bill pay accounts
 
- * Does not handle cases where the session has timed out. To avoid this,
-   use the instantiated objects in short durations. Don't leave them
-   hanging around.
+* Does not handle cases where the session has timed out. To avoid this,
+  use the instantiated objects in short durations. Don't leave them
+  hanging around.
 
- * Add support for investment holdings
+* Add support for investment holdings
 
- * Update account transactions / polling
+* Update account transactions / polling
 
 == SYNOPSIS:
  
@@ -53,10 +53,13 @@
 
  # Connect, and get an account list.
  conn.accounts.each do |account|
-   puts account.institute_name, account.name, account.balance
+   puts account.institute_name, account.name, account.current_balance
 
    # grab a handy list of transactions. Parseable as CSV.
-   puts account.transactions
+   puts account.simple_transactions
+
+   # Next line needs johnson.
+   # p account.transactions
 
    # take a look in account.account_info for a hash of useful stuff.
    # available keys vary by account type and institute.
@@ -75,7 +78,9 @@
 
 == REQUIREMENTS:
 
- mechanize, nokogiri.
+mechanize, nokogiri.
+
+Optional dependency on johnson (http://github.com/jbarnette/johnson)
 
 == INSTALL:
 
