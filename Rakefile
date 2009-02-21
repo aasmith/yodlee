@@ -18,4 +18,14 @@ unless missing.empty?
   puts "You may be missing gems. Try:\ngem install #{missing.join(' ')}"
 end
 
+namespace :gem do
+  desc 'Generate a gem spec'
+  task :spec do
+    File.open("#{HOE.name}.gemspec", 'w') do |f|
+      HOE.spec.version = "#{HOE.version}.#{Time.now.strftime("%Y%m%d%H%M%S")}"
+      f.write(HOE.spec.to_ruby)
+    end
+  end
+end
+
 # vim: syntax=Ruby
