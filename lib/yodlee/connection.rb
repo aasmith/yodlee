@@ -40,7 +40,7 @@ module Yodlee
     def account_info(acct)
       page = @agent.get(@uris[:accounts])
 
-      link = page.links.href(/itemAccountId=#{acct.id}/) or raise AccountNotFound, "Could not find account in list"
+      link = page.links.detect{|lnk| lnk.href =~ /itemAccountId=#{acct.id}/ } or raise AccountNotFound, "Could not find account in list"
       link.href << "&dateRangeId=-1"
       page = link.click
 
