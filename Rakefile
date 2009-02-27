@@ -1,11 +1,11 @@
-# -*- ruby -*-
-
 require 'rubygems'
 require 'hoe'
 require './lib/yodlee/version.rb'
 
 HOE = Hoe.new('yodlee', Yodlee::VERSION) do |p|
-  p.developer('Andrew A. Smith', 'andy@tinnedfruit.org')
+  p.developer 'Andrew A. Smith', 'andy@tinnedfruit.org'
+  p.readme_file = "README.rdoc"
+  p.extra_rdoc_files = [p.readme_file]
   p.extra_deps = %w(mechanize nokogiri)
   p.extra_dev_deps = %w(flexmock)
   p.summary = "Fetches financial data from Yodlee MoneyCenter."
@@ -27,5 +27,3 @@ namespace :gem do
     end
   end
 end
-
-# vim: syntax=Ruby
