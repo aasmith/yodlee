@@ -95,10 +95,13 @@ class TestYodlee < Test::Unit::TestCase
   def test_provide_password
     inject_agent(agent = flexmock("mechanize"))
 
+    link = flexmock("link")
+    link.should_receive(:href).and_return("https://example.com/accounts.page?x=y")
+
     page = flexmock("page")
     page.should_receive(:form_with).with(:name => 'loginForm').once.and_return(Hash.new)
     page.should_receive(:form_with).with(:name => 'updateForm').once.and_return(Hash.new)
-    page.should_receive(:uri).and_return(URI.parse("http://example.com/accounts.page?x=y"))
+    page.should_receive(:"links.detect").and_return(link)
 
     agent.should_receive(:submit).with('password' => "foo").and_return(page)
     agent.should_receive(:submit).with(Hash.new).and_return(page)

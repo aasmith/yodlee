@@ -290,7 +290,9 @@ module Yodlee
       f = page.form_with(:name => 'updateForm')
       page = @agent.submit(f)
 
-      @uris[:accounts] = page.uri.to_s << "&filter_id=-1"
+      link = page.links.detect { |lnk| lnk.attributes["id"] == "ACCOUNT_BALANCE" }
+
+      @uris[:accounts] = link.href.to_s << "&filter_id=-1"
     end
   end
 end
