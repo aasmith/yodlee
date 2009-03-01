@@ -2,11 +2,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{yodlee}
-  s.version = "0.0.1.20090227002742"
+  s.version = "0.0.1.20090301132701"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Andrew A. Smith"]
-  s.date = %q{2009-02-27}
+  s.date = %q{2009-03-01}
   s.description = %q{Fetches accounts and their transaction details from the Yodlee  MoneyCenter (https://moneycenter.yodlee.com).}
   s.email = ["andy@tinnedfruit.org"]
   s.extra_rdoc_files = ["History.txt", "Manifest.txt", "README.rdoc"]
