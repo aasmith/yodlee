@@ -10,16 +10,15 @@ module Yodlee
       @agent = WWW::Mechanize.new
       @agent.user_agent = 'Mozilla/5.0 (Windows; U; Windows NT 6.0; en-US; rv:1.9.0.5) Gecko/2008120122 Firefox/3.0.5'
 
-      @uris = {}
+      @accounts_page = nil
     end
   
     def accounts
       return @accounts if @accounts
   
       handle_connection!
-  
-      page = @agent.get(@uris[:accounts])
-      doc = Nokogiri::HTML.parse(page.body)
+
+      doc = Nokogiri::HTML.parse(@accounts_page.body)
 
       @accounts = doc.search(".acctbean a").map{|e|
         acct = Account.new(self)
@@ -38,7 +37,7 @@ module Yodlee
     end
 
     def account_info(acct)
-      page = @agent.get(@uris[:accounts])
+      page = @accounts_page
 
       link = page.links.detect{|lnk| lnk.href =~ /itemAccountId=#{acct.id}/ } or raise AccountNotFound, "Could not find account in list"
       link.href << "&dateRangeId=-1"
@@ -288,11 +287,8 @@ module Yodlee
 
       # ack javascript disabled
       f = page.form_with(:name => 'updateForm')
-      page = @agent.submit(f)
 
-      link = page.links.detect { |lnk| lnk.attributes["id"] == "ACCOUNT_BALANCE" }
-
-      @uris[:accounts] = link.href.to_s << "&filter_id=-1"
+      @accounts_page = @agent.submit(f)
     end
   end
 end

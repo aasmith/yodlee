@@ -123,14 +123,15 @@ class TestYodlee < Test::Unit::TestCase
     mock = flexmock(@conn)
     inject_agent(agent = flexmock("mechanize"))
 
-    mock.should_receive(:handle_connection!).once
-    agent.should_receive(:get).once.and_return(
-      flexmock(:body => "
-        <div class='acctbean'>
+    page = flexmock
+    page.should_receive(:body).and_return(
+        "<div class='acctbean'>
           <a href='u?itemId=1&itemAccountId=2'><strong>x</strong> - y</a>
           <a href='u?itemId=8&itemAccountId=9'><strong>a</strong> - b</a>
         </div>")
-    )
+
+    mock.should_receive(:handle_connection!).once
+    mock.instance_variable_set "@accounts_page", page
 
     assert_equal "x", @conn.accounts.first.institute_name
     assert_equal "y", @conn.accounts.first.name
