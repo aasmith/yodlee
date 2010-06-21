@@ -57,6 +57,9 @@ module Yodlee
       csv_page = page.form_with(:name => 'rep').submit
       account_info[:simple_transactions] = csv_page.response['content-type'] =~ /csv/ ? csv_page.body : []
 
+      # XXX: gross. this side-effect required by transactions(acct).
+      @script_sess = doc.to_s.scan(/scriptSessionId='([\d\w]+)'/).last.to_s
+
       account_info
     end
 
@@ -89,114 +92,90 @@ module Yodlee
         raise "Johnson not found. Install the johnson gem, or use simple_transactions instead." 
       end
 
+      sc = @agent.cookies.detect{|c| c.name == "JSESSIONID"}
+
       post_headers = {
-        "c0-scriptName"=>"TxnService", 
-        "c0-methodName"=>"searchTransactions", 
-        "c0-id"=>"#{rand(5000)}_#{Time.now.to_i}#{Time.now.usec / 1000}}", 
-        "c0-e1"=>"number:10000004", 
-        "c0-e2"=>"string:17CBE222A42161A3FF450E47CF4C1A00", 
-        "c0-e3"=>"null:null", 
-        "c0-e4"=>"number:1", 
-        "c0-e5"=>"boolean:false", 
-        "c0-e6"=>"string:#{acct.id}", 
-        "c0-e7"=>"string:-1", 
-        "c0-e8"=>"null:null", 
-        "c0-e9"=>"string:-1", 
-        "c0-e10"=>"null:null", 
-        "c0-e11"=>"null:null", 
-        "c0-e12"=>"null:null",
-        "c0-e13"=>"string:-1", 
-        "c0-e14"=>"null:null", 
-        "c0-e15"=>"number:-1", 
-        "c0-e16"=>"number:-1", 
-        "c0-e17"=>"boolean:false", 
-        "c0-e18"=>"Boolean:false", 
-        "c0-e19"=>"boolean:false", 
-        "c0-e20"=>"Boolean:false", 
-        "c0-e21"=>"string:", 
-        "c0-e22"=>"string:", 
-        "c0-e23"=>"Boolean:false", 
-        "c0-e24"=>"Boolean:false", 
-        "c0-e25"=>"boolean:false", 
-        "c0-e26"=>"Number:0", 
-        "c0-e27"=>"string:0", 
-        "c0-e28"=>"null:null", 
-        "c0-e29"=>"null:null", 
-        "c0-e30"=>"string:allTransactions", 
-        "c0-e31"=>"string:InProgressAndCleared", 
-        "c0-e32"=>"number:999", 
-        "c0-e33"=>"string:", 
-        "c0-e34"=>"null:null", 
-        "c0-e35"=>"null:null", 
-        "c0-e36"=>"string:", 
-        "c0-e37"=>"null:null", 
-        "c0-e38"=>"string:ALL", 
-        "c0-e39"=>"string:false", 
-        "c0-e40"=>"string:0.0", 
-        "c0-e41"=>"string:0.0", 
-
-        "c0-param0"=>"Object:{
-           cobrandId:reference:c0-e1,
-           applicationId:reference:c0-e2,
-           csit:reference:c0-e3,
-           loggingLevel:reference:c0-e4,
-           loggingEnabled:reference:c0-e5}", 
-
-        "c0-param1"=>"Object:{
-          itemAccountId:reference:c0-e6,
-          categoryId:reference:c0-e7,
-          categoryLevelId:reference:c0-e8,
-          dateRangeId:reference:c0-e9,
-          fromDate:reference:c0-e10,
-          toDate:reference:c0-e11,
-          groupBy:reference:c0-e12,
-          groupAccountId:reference:c0-e13,
-          filterTranasctions:reference:c0-e14,
-          transactionTypeId:reference:c0-e15,
-          transactionStatusId:reference:c0-e16,
-          ignorePendingTransactions:reference:c0-e17,
-          includeBusinessExpense:reference:c0-e18,
-          includeTransfer:reference:c0-e19,
-          includeReimbursableExpense:refrence:c0-e20,
-          fromDate1:reference:c0-e21,
-          toDate1:reference:c0-e22,
-          includeMedicalExpense:reference:c0-e23,
-          includeTaxDeductible:reference:c0-e24,
-          includePersonalExpense:reference:c0-e25,
-          transactionAmount:reference:c0-e26,
-          transactionAmountRange:reference:c0-e27,
-          billStatementRange:reference:c0-e28,
-          criteria:reference:c0-e29,
-          module:reference:c0-e30,
-          transactionType:reference:c0-e31,
-          pageSize:reference:c0-e32,
-          sharedMemId:reference:c0-e33,
-          overRideDateRangeId:reference:c0-e34,
-          overRideContainer:referencec0-e35,
-          searchString:reference:c0-e36,
-          pageId:reference:c0-e37,
-          splitTypeTransaction:reference:c0-e38,
-          isAvailableBalance:reference:c0-e39,
-          currentBalance:reference:c0-e40,
-          availableBalance:reference:c0-e41}",
-
-        "c0-param2"=>"boolean:false", 
-
-        "callCount"=>"1", 
-        "xml"=>"true", 
+        "callCount" => "1",
+        "httpSessionId" => sc.value,
+        "scriptSessionId" => @script_sess,
+        "c0-scriptName" => "TxnService",
+        "c0-methodName" => "searchTransactions",
+        "c0-id" => "0",
+        "c0-e1" => "number:10000004",
+        "c0-e2" => "string:17CBE222A42161A3FF450E47CF4C1A00",
+        "c0-e3" => "null:null",
+        "c0-e5" => "string:MM%2Fdd%2Fyyyy",
+        "c0-e6" => "string:USD",
+        "c0-e7" => "string:PST",
+        "c0-e8" => "string:.",
+        "c0-e9" => "string:%2C",
+        "c0-e10" => "string:%23%23%23%2C%23%230.%23%23",
+        "c0-e4" => "Object_Object:{dateFormat:reference:c0-e5, currencyCode:reference:c0-e6, timeZone:reference:c0-e7, decimalSeparator:reference:c0-e8, groupingSeparator:reference:c0-e9, groupPattern:reference:c0-e10}",
+        "c0-e11" => "number:1",
+        "c0-e12" => "boolean:false",
+        "c0-param0" => "Object_Object:{cobrandId:reference:c0-e1, applicationId:reference:c0-e2, csit:reference:c0-e3, iBean:reference:c0-e4, loggingLevel:reference:c0-e11, loggingEnabled:reference:c0-e12}",
+        "c0-e13" => "string:#{acct.id}",
+        "c0-e14" => "string:-1",
+        "c0-e15" => "null:null",
+        "c0-e16" => "string:-1",
+        "c0-e17" => "null:null",
+        "c0-e18" => "null:null",
+        "c0-e19" => "null:null",
+        "c0-e20" => "string:-1",
+        "c0-e21" => "null:null",
+        "c0-e22" => "number:-1",
+        "c0-e23" => "number:-1",
+        "c0-e24" => "boolean:false",
+        "c0-e25" => "string:",
+        "c0-e26" => "boolean:false",
+        "c0-e27" => "string:",
+        "c0-e28" => "string:",
+        "c0-e29" => "string:",
+        "c0-e30" => "string:",
+        "c0-e31" => "string:",
+        "c0-e32" => "boolean:false",
+        "c0-e33" => "string:0.0",
+        "c0-e34" => "string:0",
+        "c0-e35" => "null:null",
+        "c0-e36" => "null:null",
+        "c0-e37" => "string:allTransactions",
+        "c0-e38" => "string:InProgressAndCleared",
+        "c0-e39" => "number:999",
+        "c0-e40" => "string:",
+        "c0-e41" => "null:null",
+        "c0-e42" => "null:null",
+        "c0-e43" => "string:",
+        "c0-e44" => "null:null",
+        "c0-e45" => "string:ALL",
+        "c0-e46" => "string:false",
+        "c0-e47" => "null:null",
+        "c0-e48" => "string:0.0",
+        "c0-e49" => "string:0.0",
+        "c0-e50" => "string:ALL",
+        "c0-param1" => "Object_Object:{itemAccountId:reference:c0-e13, categoryId:reference:c0-e14, categoryLevelId:reference:c0-e15, dateRangeId:reference:c0-e16, fromDate:reference:c0-e17, toDate:reference:c0-e18, groupBy:reference:c0-e19, groupAccountId:reference:c0-e20, filterTranasctions:reference:c0-e21, transactionTypeId:reference:c0-e22, transactionStatusId:reference:c0-e23, ignorePendingTransactions:reference:c0-e24, includeBusinessExpense:reference:c0-e25, includeTransfer:reference:c0-e26, includeReimbursableExpense:reference:c0-e27, fromDate1:reference:c0-e28, toDate1:reference:c0-e29, includeMedicalExpense:reference:c0-e30, includeTaxDeductible:reference:c0-e31, includePersonalExpense:reference:c0-e32, transactionAmount:reference:c0-e33, transactionAmountRange:reference:c0-e34, billStatementRange:reference:c0-e35, criteria:reference:c0-e36, module:reference:c0-e37, transactionType:reference:c0-e38, pageSize:reference:c0-e39, sharedMemId:reference:c0-e40, overRideDateRangeId:reference:c0-e41, overRideContainer:reference:c0-e42, searchString:reference:c0-e43, pageId:reference:c0-e44, splitTypeTransaction:reference:c0-e45, isAvailableBalance:reference:c0-e46, categoryIds:reference:c0-e47, currentBalance:reference:c0-e48, availableBalance:reference:c0-e49, container:reference:c0-e50}",
+        "c0-param2" => "boolean:true",
+        "batchId" => "3"
       }
+
       page = @agent.post(
-        'https://moneycenter.yodlee.com/moneycenter/dwr/exec/TxnService.searchTransactions.dwr',
+        'https://moneycenter.yodlee.com/moneycenter/dwr/call/plaincall/TxnService.searchTransactions.dwr',
         post_headers
       )
 
       j = Johnson::Runtime.new
 
-      # Remove the last line (a call to DWREngine), and execute
-      j.evaluate page.body.strip.sub(/\n[^\n]+\Z/m, '')
+      script = page.body
 
-      if x = j['s0']
-        transactions = x.transactions.map do |e|
+      # Remove the last line (a call to DWREngine), and execute
+      script = script.strip.sub(/\n[^\n]+\Z/m, '')
+
+      # Remove a leading throw statement.
+      script = script.sub(/\A.*?\n+/, '')
+
+      j.evaluate script
+
+      if x = j['s5']
+        transactions = x.map do |e|
           transaction = Yodlee::Transaction.new
           transaction.account_name = e.accountName
           transaction.currency = e.amount.cobCurrencyCode
